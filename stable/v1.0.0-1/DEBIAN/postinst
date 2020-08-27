@@ -1,0 +1,142 @@
+#!/bin/bash
+# Abort if any command returns an error value
+set -e
+
+# Debug variable - Values "on" or "off"
+_DEBUG="off"
+
+# Setup some variables so we are not duping the paths
+LIB_PATH="/usr/share"
+PVEMANAGER_FILEPATH="/pve-manager/js/pvemanagerlib.js"
+ZFSPLUGIN_FILEPATH="/perl5/PVE/Storage/ZFSPlugin.pm"
+APIDOC_FILEPATH="/pve-docs/api-viewer/apidoc.js"
+FREENAS_FILEPATH="/perl5/PVE/Storage/LunCmd/FreeNAS.pm"
+GIT_REPO="https://github.com/TheGrandWazoo/"
+GIT_LOCAL_REPO_PATH="/usr/local/src/"
+GIT_REPO_NAME="freenas-proxmox"
+GIT_BRANCH="1.0"
+RESTART_PVE_SERVICES="no"
+
+# This script is called as the last step of the installation of the
+# package.  All the package's files are in place, dpkg has already
+# done its automatic conffile handling, and all the packages we depend
+# of are already fully installed and configured.
+[ "${_DEBUG}" == "on" ] && PATCH_ARGS="--verbose -b" || PATCH_ARGS="-s -b"
+
+# Get some version numbers of the Proxmox packages
+proxmox_ve_ver=`dpkg-query --showformat='${Version}' --show proxmox-ve`
+libpve_storage_perl_ver=`dpkg-query --showformat='${Version}' --show libpve-storage-perl`
+pve_manager_ver=`dpkg-query --showformat='${Version}' --show pve-manager`
+pve_docs_ver=`dpkg-query --showformat='${Version}' --show pve-docs`
+major_ver=${proxmox_ve_ver%%.*}
+[ "${_DEBUG}" == "on" ] && echo "Proxmox Version $proxmox_ve_ver"
+[ "${_DEBUG}" == "on" ] && echo "Proxmox Major Version $major_ver"
+
+# Test if the freenas-proxmox repo has been downloaded. If not clone it, else
+# update the repo with a pull.
+if test ! -e ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}; then
+  [ "${_DEBUG}" == "on" ] && echo "Cloning proxmox-freenas github repo"
+  git -C ${GIT_LOCAL_REPO_PATH} clone ${GIT_REPO}${GIT_REPO_NAME}.git
+else
+  [ "${_DEBUG}" == "on" ] && echo "Pulling proxmox-freenas github repo"
+  git -C ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME} pull
+fi
+
+# What is the 'postinst' script doing...
+[ "$_DEBUG" == "on" ] && echo "Initiating '$1' with arg '$2'"
+case "$1" in
+  triggered)
+    # I am not sure why I did this, but I must have had a reason.
+    if [ `echo $2 | grep -c "apidoc"` -eq 0 ] && [ `cat ${LIB_PATH}${APIDOC_FILEPATH} | grep -c "freenas"` -eq 0 ]; then
+      [ "${_DEBUG}" == "on" ] && echo "Update needed for pve-docs"
+      paths="$2 ${APIDOC_FILEPATH}"
+    else
+      [ "${_DEBUG}" == "on" ] && echo "pve-docs check"
+      paths="$2"
+    fi
+
+    for fullpath in $paths
+    do
+      filename=$(basename -- "$fullpath")
+      filename="${filename%.*}"
+      echo "Found $fullpath in arguments. Triggering patch of $fullpath"
+      case "$filename" in
+        ZFSPlugin)
+          patch ${PATCH_ARGS} ${LIB_PATH}${ZFSPLUGIN_FILEPATH} < ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}${ZFSPLUGIN_FILEPATH}.patch &> /dev/null
+          ;;
+        pvemanagerlib)
+          patch ${PATCH_ARGS} ${LIB_PATH}${PVEMANAGER_FILEPATH} < ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}${PVEMANAGER_FILEPATH}.patch &> /dev/null
+          ;;
+        apidoc)
+          patch ${PATCH_ARGS} ${LIB_PATH}${APIDOC_FILEPATH} < ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}${APIDOC_FILEPATH}.patch &> /dev/null
+          ;;
+      esac
+    done
+    [ "${_DEBUG}" == "on" ] && echo "Installing ${LIB_PATH}${FREENAS_FILEPATH}"
+    cp ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}${FREENAS_FILEPATH} ${LIB_PATH}${FREENAS_FILEPATH}
+
+    exit 0
+    ;;
+
+  configure)
+    # Configure this package.  If the package must prompt the user for
+    # information, do it here.
+    echo "Configuring ${GIT_REPO_NAME} $2"
+
+    # Check to see what branch we are on and change if necessary.
+    GIT_BRANCH_CURRENT=`git -C ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME} rev-parse --abbrev-ref HEAD`
+    if [ "${GIT_BRANCH_CURRENT}" != "${GIT_BRANCH}" ]; then
+      git -C ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME} checkout ${GIT_BRANCH}
+    fi
+
+    # Check to see if the system was already patched manually or by another means.
+    # Check /usr/share/perl5/PVE/Storage/ZFSPlugin.pm for 'freenas'
+    if [ `cat ${LIB_PATH}${ZFSPLUGIN_FILEPATH} | grep -c "freenas"` -eq 0 ]; then
+      [ "${_DEBUG}" == "on" ] && echo "Patching ${LIB_PATH}${ZFSPLUGIN_FILEPATH}"
+      patch ${PATCH_ARGS} ${LIB_PATH}${ZFSPLUGIN_FILEPATH} < ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}${ZFSPLUGIN_FILEPATH}.patch &> /dev/null
+      RESTART_PVE_SERVICES="yes"
+    fi
+
+    # Check /usr/share/pve-manager/js/pvemanagerlib.js for 'freenas'
+    if [ `cat ${LIB_PATH}${PVEMANAGER_FILEPATH} | grep -c "freenas"` -eq 0 ]; then
+      [ "${_DEBUG}" == "on" ] && echo "Patching ${LIB_PATH}${PVEMANAGER_FILEPATH}"
+      patch ${PATCH_ARGS} ${LIB_PATH}${PVEMANAGER_FILEPATH} < ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}${PVEMANAGER_FILEPATH}.patch &> /dev/null
+      RESTART_PVE_SERVICES="yes"
+    fi
+
+    # Check /usr/share/pve-docs/api-viewer/apidoc.js for 'freenas'
+    if [ `cat ${LIB_PATH}${APIDOC_FILEPATH} | grep -c "freenas"` -eq 0 ]; then
+      [ "${_DEBUG}" == "on" ] && echo "Patching ${LIB_PATH}${APIDOC_FILEPATH}"
+      patch ${PATCH_ARGS} ${LIB_PATH}${APIDOC_FILEPATH} < ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}${APIDOC_FILEPATH}.patch &> /dev/null
+      RESTART_PVE_SERVICES="yes"
+    fi
+
+    # Check /usr/share/perl5/PVE/Storage/LunCmd/FreeNAS.pm
+    if test ! -e ${LIB_PATH}${FREENAS_FILEPATH}; then
+      [ "${_DEBUG}" == "on" ] && echo "Installing ${LIB_PATH}${FREENAS_FILEPATH}"
+      cp ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}${FREENAS_FILEPATH} ${LIB_PATH}${FREENAS_FILEPATH}
+      RESTART_PVE_SERVICES="yes"
+    fi
+
+    # Restart the necessary Proxmox VE Services if we changed any files above.
+    if [ "${RESTART_PVE_SERVICES}" == "yes" ]; then
+      cp ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}${FREENAS_FILEPATH} ${LIB_PATH}${FREENAS_FILEPATH}
+      echo "Restarting pvedaemon..."
+      pvedaemon restart
+      echo "Restarting pveproxy..."
+      pveproxy restart
+      echo "Restarting pvestatd..."
+      pvestatd restart
+    fi
+    exit 0
+    ;;
+
+  abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+  *) echo "$0: didn't understand being called with \`$1'" 1>&2
+     exit 0
+     ;;
+esac
+
+exit 0

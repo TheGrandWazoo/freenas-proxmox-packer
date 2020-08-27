@@ -1,0 +1,3 @@
+interest /usr/share/pve-manager/js/pvemanagerlib.js
+interest /usr/share/pve-docs/api-viewer/apidoc.js
+interest /usr/share/perl5/PVE/Storage/ZFSPlugin.pm

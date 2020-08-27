@@ -1,0 +1,102 @@
+#!/bin/bash
+# Abort if any command returns an error value
+set -e
+
+# Debug variable - Values "on" or "off"
+_DEBUG="on"
+
+# Setup some variables so we are not duping the paths
+LIB_PATH="/usr/share"
+PVEMANAGER_FILEPATH="/pve-manager/js/pvemanagerlib.js"
+ZFSPLUGIN_FILEPATH="/perl5/PVE/Storage/ZFSPlugin.pm"
+APIDOC_FILEPATH="/pve-docs/api-viewer/apidoc.js"
+FREENAS_FILEPATH="/perl5/PVE/Storage/LunCmd/FreeNAS.pm"
+GIT_LOCAL_REPO_PATH="/usr/local/src/"
+GIT_REPO_NAME="freenas-proxmox"
+GIT_BRANCH="master"
+RESTART_PVE_SERVICES="no"
+
+# This script is called as the last step of the installation of the
+# package.  All the package's files are in place, dpkg has already
+# done its automatic conffile handling, and all the packages we depend
+# of are already fully installed and configured.
+
+[ "$_DEBUG" == "on" ] && PATCH_ARGS="--verbose -b" || PATCH_ARGS="-s -b"
+
+proxmox_ve_ver=`dpkg-query --showformat='${Version}' --show proxmox-ve`
+libpve_storage_perl_ver=`dpkg-query --showformat='${Version}' --show libpve-storage-perl`
+pve_manager_ver=`dpkg-query --showformat='${Version}' --show pve-manager`
+pve_docs_ver=`dpkg-query --showformat='${Version}' --show pve-docs`
+major_ver=${proxmox_ve_ver%%.*}
+[ "$_DEBUG" == "on" ] && echo "Proxmox Version $proxmox_ve_ver"
+[ "$_DEBUG" == "on" ] && echo "Proxmox Major Version $major_ver"
+
+# What is the 'postinst' script doing...
+[ "$_DEBUG" == "on" ] && echo "Initiating '$1' with arg $2"
+case "$1" in
+  remove)
+    # test if the freenas-proxmox repo has been downloaded
+    if [ -d ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME} ]; then
+        [ "$_DEBUG" == "on" ] && echo "Removing git repo '${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}'"
+        rm -rf ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}
+    fi
+
+    # test if the FreeNAS.pm file is installed and remove it.
+    if [ -f ${LIB_PATH}${FREENAS_FILEPATH} ]; then
+        [ "$_DEBUG" == "on" ] && echo "Removing FreeNAS.pm LUN plugin at '${LIB_PATH}${FREENAS_FILEPATH}'"
+        rm -rf ${LIB_PATH}${FREENAS_FILEPATH}
+    fi
+
+    echo "Reinstalling original Proxmox VE files"
+    [ "$_DEBUG" == "on" ] && echo "Reinstall original ${LIB_PATH}${ZFSPLUGIN_FILEPATH}"
+    cp ${LIB_PATH}${ZFSPLUGIN_FILEPATH}.orig ${LIB_PATH}${ZFSPLUGIN_FILEPATH}
+
+    [ "$_DEBUG" == "on" ] && echo "Reinstall original ${LIB_PATH}${PVEMANAGER_FILEPATH}"
+    cp ${LIB_PATH}${PVEMANAGER_FILEPATH}.orig ${LIB_PATH}${PVEMANAGER_FILEPATH}
+
+    [ "$_DEBUG" == "on" ] && echo "Reinstall original ${LIB_PATH}${APIDOC_FILEPATH}"
+    cp ${LIB_PATH}${APIDOC_FILEPATH}.orig ${LIB_PATH}${APIDOC_FILEPATH}
+
+    echo "Restarting pvedaemon..."
+    pvedaemon restart
+    echo "Restarting pveproxy..."
+    pveproxy restart
+    echo "Restarting pvestatd..."
+    pvestatd restart
+
+    exit 0
+    ;;
+
+  purge)
+    exit 0
+    ;;
+
+  upgrade)
+    # test if the FreeNAS.pm file is installed and remove it.
+    echo "Reinstalling original Proxmox VE files so upgrade can be performed"
+    if [ -f ${LIB_PATH}${FREENAS_FILEPATH} ]; then
+      [ "$_DEBUG" == "on" ] && echo "Removing 'old' FreeNAS.pm LUN plugin at '${LIB_PATH}${FREENAS_FILEPATH}'"
+      rm -rf ${LIB_PATH}${FREENAS_FILEPATH}
+    fi
+
+    [ "$_DEBUG" == "on" ] && echo "Reinstall original ${LIB_PATH}${ZFSPLUGIN_FILEPATH}"
+    cp ${LIB_PATH}${ZFSPLUGIN_FILEPATH}.orig ${LIB_PATH}${ZFSPLUGIN_FILEPATH}
+
+    [ "$_DEBUG" == "on" ] && echo "Reinstall original ${LIB_PATH}${PVEMANAGER_FILEPATH}"
+    cp ${LIB_PATH}${PVEMANAGER_FILEPATH}.orig ${LIB_PATH}${PVEMANAGER_FILEPATH}
+
+    [ "$_DEBUG" == "on" ] && echo "Reinstall original ${LIB_PATH}${APIDOC_FILEPATH}"
+    cp ${LIB_PATH}${APIDOC_FILEPATH}.orig ${LIB_PATH}${APIDOC_FILEPATH}
+
+    exit 0
+    ;;
+
+  failed-upgrade|disappear|abort-upgrade|abort-remove|abort-deconfigure)
+    ;;
+
+  *) echo "$0: didn't understand being called with \`$1'" 1>&2
+     exit 0
+     ;;
+esac
+
+exit 0

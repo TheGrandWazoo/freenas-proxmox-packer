@@ -1,0 +1,17 @@
+Source: freenas-proxmox
+Section: perl
+Priority: optional
+Maintainer: KSA Technologies, LLC <theprofessor@ksatechnologies.com>
+Uploaders: Kevin Scott Adams <thegrandwazoo@ksatechnologies.com>
+Depends: librest-client-perl, git
+Standards-Version: 4.5.0
+Vcs-Git: https://github.com/TheGrandWazoo/freenas-proxmox.git
+Vcs-Browser: https://github.com/TheGrandWazoo/freenas-proxmox.git
+Homepage: https://github.com/TheGrandWazoo/freenas-proxmox/wiki
+Package: freenas-proxmox
+Architecture: all
+Version: 3.0.0-0alpha1
+Pre-Depends: librest-client-perl, git
+Provides: freenas-proxmox
+Description: FreeNAS Plugin for Proxmox VE
+ A Proxmox VE storage plugin to interface with FreeNAS APIs.
