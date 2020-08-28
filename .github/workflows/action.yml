@@ -18,10 +18,12 @@ jobs:
       - name: Install dpkg.
         run: sudo apt-get install dpkg
 
-      - name: Link correct branch 'DEBIAN' branch directory.
-        if: contains('master', ${{ github.event.client_payload.ref }})
+      - if: contains(${{ github.event.client_payload.ref }}, 'master')
+        name: Package the 'Testing/Master' branch.
         run: sudo dpkg-deb -Zgzip --build testing freenas-proxmox-2.0.0-BETA5.deb
-        if: contains('v1', ${{ github.event.client_payload.ref }})
+      - if: contains(${{ github.event.client_payload.ref }}, 'v1')
+        name: Package the 'V1' branch.
         run: sudo dpkg-deb -Zgzip --build testing/v1.0.0-1 freenas-proxmox-1.0.0-1.deb
-        if: contains('v2', ${{ github.event.client_payload.ref }})
+      - if: contains(${{ github.event.client_payload.ref }}, 'v2')
+        name: Package the 'V2' branch.
         run: sudo dpkg-deb -Zgzip --build testing/v2.0.0-1 freenas-proxmox-2.0.0-1.deb
