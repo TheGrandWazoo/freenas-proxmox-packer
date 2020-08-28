@@ -21,28 +21,28 @@ jobs:
     if: contains(github.event.client_payload.ref, 'master')
     name: Package the 'Testing/Master' branch.
     steps:
-      run: |
-        sudo chmod 0755 testing/DEBIAN/postinst
-        sudo chmod 0755 testing/DEBIAN/postrm
-        sudo dpkg-deb -Zgzip --build testing freenas-proxmox-2.0.0-0-beta6_all.deb
-        sudo ls -l .
+      - run: |
+          sudo chmod 0755 testing/DEBIAN/postinst
+          sudo chmod 0755 testing/DEBIAN/postrm
+          sudo dpkg-deb -Zgzip --build testing freenas-proxmox-2.0.0-0-beta6_all.deb
+          sudo ls -l .
 
   build_v1:
     needs: setup
     if: contains(github.event.client_payload.ref, '1.0')
     name: Package the 'V1' branch.
     steps:
-      run: |
-        sudo chmod 0755 stable/v1.0.0-1/DEBIAN/postinst
-        sudo chmod 0755 stable/v1.0.0-1/DEBIAN/postrm
-        sudo dpkg-deb -Zgzip --build stable/v1.0.0-1 freenas-proxmox-1.0.0-1_all.deb
+      - run: |
+          sudo chmod 0755 stable/v1.0.0-1/DEBIAN/postinst
+          sudo chmod 0755 stable/v1.0.0-1/DEBIAN/postrm
+          sudo dpkg-deb -Zgzip --build stable/v1.0.0-1 freenas-proxmox-1.0.0-1_all.deb
 
   build_v2:
     needs: setup
     if: contains(github.event.client_payload.ref, '2.0')
     name: Package the 'V2' branch.
     steps:
-      run: |
-        sudo chmod 0755 stable/v2.0.0-1/DEBIAN/postinst
-        sudo chmod 0755 stable/v2.0.0-1/DEBIAN/postrm
-        sudo dpkg-deb -Zgzip --build stable/v2.0.0-1 freenas-proxmox-2.0.0-1_all.deb
+      - run: |
+          sudo chmod 0755 stable/v2.0.0-1/DEBIAN/postinst
+          sudo chmod 0755 stable/v2.0.0-1/DEBIAN/postrm
+          sudo dpkg-deb -Zgzip --build stable/v2.0.0-1 freenas-proxmox-2.0.0-1_all.deb
