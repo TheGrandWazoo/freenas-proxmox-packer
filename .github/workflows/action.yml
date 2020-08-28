@@ -1,0 +1,30 @@
+# action.yml
+name: freenas-proxmox Package
+on:
+  repository_dispatch:
+    types: [build_push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build freenas-proxmox Debian package
+    steps:
+      - name: What are we doing?
+        run: echo "We are building ${{ github.event.client_payload.ref }}"
+
+      - name: Checkout php-fpm-container
+        uses: actions/checkout@v2
+
+      - name: Checkout netclerk-common-libs
+        uses: actions/checkout@v2
+        with:
+          repository: TheGrandWazoo/netclerk-common-libs
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: netclerk-common-libs
+
+      - name: Checkout netclerk-ui
+        uses: actions/checkout@v2
+        with:
+          repository: TheGrandWazoo/netclerk-ui
+          token: ${{ secrets.ACCESS_TOKEN }}
+          path: netclerk-ui
