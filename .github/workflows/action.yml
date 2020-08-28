@@ -7,24 +7,21 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: Build freenas-proxmox Debian package
+    name: Build freenas-proxmox Debian package.
     steps:
       - name: What are we doing?
         run: echo "We are building ${{ github.event.client_payload.ref }}"
 
-      - name: Checkout php-fpm-container
+      - name: Checkout freenas-proxmox-packer.
         uses: actions/checkout@v2
 
-      - name: Checkout netclerk-common-libs
-        uses: actions/checkout@v2
-        with:
-          repository: TheGrandWazoo/netclerk-common-libs
-          token: ${{ secrets.ACCESS_TOKEN }}
-          path: netclerk-common-libs
+      - name: Install dpkg.
+        run: sudo apt-get install dpkg
 
-      - name: Checkout netclerk-ui
-        uses: actions/checkout@v2
-        with:
-          repository: TheGrandWazoo/netclerk-ui
-          token: ${{ secrets.ACCESS_TOKEN }}
-          path: netclerk-ui
+      - name: Link correct branch 'DEBIAN' branch directory.
+        if: contains('master', ${{ github.event.client_payload.ref }})
+        run: sudo dpkg-deb -Zgzip --build testing freenas-proxmox-2.0.0-BETA5.deb
+        if: contains('v1', ${{ github.event.client_payload.ref }})
+        run: sudo dpkg-deb -Zgzip --build testing/v1.0.0-1 freenas-proxmox-1.0.0-1.deb
+        if: contains('v2', ${{ github.event.client_payload.ref }})
+        run: sudo dpkg-deb -Zgzip --build testing/v2.0.0-1 freenas-proxmox-2.0.0-1.deb
