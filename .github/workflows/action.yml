@@ -17,6 +17,7 @@ jobs:
         run: sudo apt-get install dpkg
 
   build_master:
+    runs-on: ubuntu-latest
     needs: setup
     if: contains(github.event.client_payload.ref, 'master')
     name: Package the 'Testing/Master' branch.
@@ -28,6 +29,7 @@ jobs:
           sudo ls -l .
 
   build_v1:
+    runs-on: ubuntu-latest
     needs: setup
     if: contains(github.event.client_payload.ref, '1.0')
     name: Package the 'V1' branch.
@@ -38,6 +40,7 @@ jobs:
           sudo dpkg-deb -Zgzip --build stable/v1.0.0-1 freenas-proxmox-1.0.0-1_all.deb
 
   build_v2:
+    runs-on: ubuntu-latest
     needs: setup
     if: contains(github.event.client_payload.ref, '2.0')
     name: Package the 'V2' branch.
