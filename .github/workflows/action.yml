@@ -21,23 +21,23 @@ jobs:
       - if: contains(${{ github.event.client_payload.ref }}, 'master')
         name: Package the 'Testing/Master' branch.
         run: |
-          sudo chmod 0755 testing/postinst
-          sudo chmod 0755 testing/postrm
+          sudo chmod 0755 testing/DEBIAN/postinst
+          sudo chmod 0755 testing/DEBIAN/postrm
           sudo dpkg-deb -Zgzip --build testing freenas-proxmox-2.0.0-BETA5.deb
           sudo ls -l .
           sudo ls -l testing
+          sudo ls -l testing/DEBIAN
 
       - if: contains(${{ github.event.client_payload.ref }}, 'v1')
         name: Package the 'V1' branch.
         run: |
-          sudo chmod 0755 stable/v1.0.0-1/postinst
-          sudo chmod 0755 stable/v1.0.0-1/postrm
+          sudo chmod 0755 stable/v1.0.0-1/DEBIAN/postinst
+          sudo chmod 0755 stable/v1.0.0-1/DEBIAN/postrm
           sudo dpkg-deb -Zgzip --build stable/v1.0.0-1 freenas-proxmox-1.0.0-1.deb
 
       - if: contains(${{ github.event.client_payload.ref }}, 'v2')
         name: Package the 'V2' branch.
         run: |
-          sudo chmod 0755 stable/v2.0.0-1/postinst
-          sudo chmod 0755 stable/v2.0.0-1/postrm
+          sudo chmod 0755 stable/v2.0.0-1/DEBIAN/postinst
+          sudo chmod 0755 stable/v2.0.0-1/DEBIAN/postrm
           sudo dpkg-deb -Zgzip --build stable/v2.0.0-1 freenas-proxmox-2.0.0-1.deb
-          
