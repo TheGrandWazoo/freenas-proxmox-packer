@@ -52,7 +52,7 @@ jobs:
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
-            sudo cd ${{ KSAT_REPO_CMD_DIR }}
+            sudo cd ${{ secrets.KSAT_REPO_CMD_DIR }}
             sudo ./reindex_testing_freenas.sh
 
   build_stable:
@@ -103,5 +103,5 @@ jobs:
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
-            sudo cd ${{ KSAT_REPO_CMD_DIR }}
+            sudo cd ${{ secrets.KSAT_REPO_CMD_DIR }}
             sudo ./reindex_stable_freenas.sh
