@@ -5,36 +5,96 @@ on:
     types: [build_push]
 
 jobs:
-  setup:
+  build_master:
+    if: contains(github.event.client_payload.ref, 'master')
     runs-on: ubuntu-latest
-    name: Build freenas-proxmox Debian package.
+    name: Build freenas-proxmox Debian package - master Branch.
     steps:
-      - name: What are we doing?
-        run: echo "We are building ${{ github.event.client_payload.ref }}"
+      - name: Install dpkg.
+        run: sudo apt-get install dpkg
 
       - name: Checkout freenas-proxmox-packer.
         uses: actions/checkout@v2
 
-      - name: Install dpkg.
-        run: sudo apt-get install dpkg
+      - name: Fetch all history for all tags and branches.
+        run: git fetch --prune --unshallow
 
-      - name: Packing it up for the master branch
-        if: contains(github.event.client_payload.ref, 'master')
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0.9.2
+        with:
+          versionSpec: '2.0.0-0-beta-x'
+      - name: Use GitVersion
+        id: gitversion # step id used as reference for output values
+        uses: gittools/actions/gitversion/execute@v0.9.2
+      - run: |
+          echo "Major: ${{ steps.gitversion.outputs.major }}"
+          echo "Minor: ${{ steps.gitversion.outputs.minor }}"
+          echo "Patch: ${{ steps.gitversion.outputs.patch }}"
+          echo "PreReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}"
+          echo "PreReleaseTagWithDash: ${{ steps.gitversion.outputs.preReleaseTagWithDash }}"
+          echo "PreReleaseLabel: ${{ steps.gitversion.outputs.preReleaseLabel }}"
+          echo "PreReleaseNumber: ${{ steps.gitversion.outputs.preReleaseNumber }}"
+          echo "WeightedPreReleaseNumber: ${{ steps.gitversion.outputs.weightedPreReleaseNumber }}"
+          echo "BuildMetaData: ${{ steps.gitversion.outputs.buildMetaData }}"
+          echo "BuildMetaDataPadded: ${{ steps.gitversion.outputs.buildMetaDataPadded }}"
+          echo "FullBuildMetaData: ${{ steps.gitversion.outputs.fullBuildMetaData }}"
+          echo "MajorMinorPatch: ${{ steps.gitversion.outputs.majorMinorPatch }}"
+          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+          echo "LegacySemVer: ${{ steps.gitversion.outputs.legacySemVer }}"
+          echo "LegacySemVerPadded: ${{ steps.gitversion.outputs.legacySemVerPadded }}"
+          echo "AssemblySemVer: ${{ steps.gitversion.outputs.assemblySemVer }}"
+          echo "AssemblySemFileVer: ${{ steps.gitversion.outputs.assemblySemFileVer }}"
+          echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
+          echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
+          echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"
+          echo "Sha: ${{ steps.gitversion.outputs.sha }}"
+          echo "ShortSha: ${{ steps.gitversion.outputs.shortSha }}"
+          echo "NuGetVersionV2: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
+          echo "NuGetVersion: ${{ steps.gitversion.outputs.nuGetVersion }}"
+          echo "NuGetPreReleaseTagV2: ${{ steps.gitversion.outputs.nuGetPreReleaseTagV2 }}"
+          echo "NuGetPreReleaseTag: ${{ steps.gitversion.outputs.nuGetPreReleaseTag }}"
+          echo "VersionSourceSha: ${{ steps.gitversion.outputs.versionSourceSha }}"
+          echo "CommitsSinceVersionSource: ${{ steps.gitversion.outputs.commitsSinceVersionSource }}"
+          echo "CommitsSinceVersionSourcePadded: ${{ steps.gitversion.outputs.commitsSinceVersionSourcePadded }}"
+          echo "CommitDate: ${{ steps.gitversion.outputs.commitDate }}"
+
+      - name: Package the master branch in a deb file.
         run: |
           sudo chmod 0755 testing/DEBIAN/postinst
           sudo chmod 0755 testing/DEBIAN/postrm
           sudo dpkg-deb -Zgzip --build testing freenas-proxmox-2.0.0-0-beta6_all.deb
           sudo ls -l .
 
-      - name: Packing it up for the 1.0 branch
-        if: contains(github.event.client_payload.ref, '1.0')
+  build_v1:
+    name: Build freenas-proxmox Debian package - 1.0 Branch
+    if: contains(github.event.client_payload.ref, '1.0')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout freenas-proxmox-packer.
+        uses: actions/checkout@v2
+
+      - name: Install dpkg.
+        run: sudo apt-get install dpkg
+
+      - name: Packaging for the 1.0 branch.
         run: |
           sudo chmod 0755 stable/v1.0.0-1/DEBIAN/postinst
           sudo chmod 0755 stable/v1.0.0-1/DEBIAN/postrm
           sudo dpkg-deb -Zgzip --build stable/v1.0.0-1 freenas-proxmox-1.0.0-1_all.deb
 
-      - name: Packing it up for the 2.0 branch
-        if: contains(github.event.client_payload.ref, '2.0')
+  build_v2:
+    name: Build freenas-proxmox Debian package - 2.0 Branch
+    if: contains(github.event.client_payload.ref, '2.0')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout freenas-proxmox-packer.
+        uses: actions/checkout@v2
+
+      - name: Install dpkg.
+        run: sudo apt-get install dpkg
+
+      - name: Packaging for the 1.0 branch.
+        run: |
         run: |
           sudo chmod 0755 stable/v2.0.0-1/DEBIAN/postinst
           sudo chmod 0755 stable/v2.0.0-1/DEBIAN/postrm
