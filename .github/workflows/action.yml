@@ -78,9 +78,9 @@ jobs:
 
       - name: Packaging for the 1.0 branch.
         run: |
-          sudo chmod 0755 stable/v1.0.0-1/DEBIAN/postinst
-          sudo chmod 0755 stable/v1.0.0-1/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build stable/v1.0.0-1 freenas-proxmox-1.0.0-1_all.deb
+          sudo chmod 0755 stable/v1.0/DEBIAN/postinst
+          sudo chmod 0755 stable/v1.0/DEBIAN/postrm
+          sudo dpkg-deb -Zgzip --build stable/v1.0 freenas-proxmox-1.0.0-1_all.deb
 
   build_v2:
     name: Build freenas-proxmox Debian package - 2.0 Branch
@@ -93,9 +93,8 @@ jobs:
       - name: Install dpkg.
         run: sudo apt-get install dpkg
 
-      - name: Packaging for the 1.0 branch.
+      - name: Packaging for the 2.0 branch.
         run: |
-        run: |
-          sudo chmod 0755 stable/v2.0.0-1/DEBIAN/postinst
-          sudo chmod 0755 stable/v2.0.0-1/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build stable/v2.0.0-1 freenas-proxmox-2.0.0-1_all.deb
+          sudo chmod 0755 stable/v2.0/DEBIAN/postinst
+          sudo chmod 0755 stable/v2.0/DEBIAN/postrm
+          sudo dpkg-deb -Zgzip --build stable/v2.0 freenas-proxmox-2.0.0-1_all.deb
