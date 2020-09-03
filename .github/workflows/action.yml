@@ -82,12 +82,11 @@ jobs:
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
-            echo "::set-output name=dirlist::$(ls -l)"
+            ls -l
             sudo rm -f ${{ secrets.KSAT_REPO_STABLE_TARGET }}/*
 
       - name: Print output
-        run:
-          echo ${{ steps.list.outputs.dirlist }}
+        run: echo ${{ steps.list.out.* }}
 
       - name: Upload package to repo.
         uses: appleboy/scp-action@master
