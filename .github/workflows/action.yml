@@ -23,7 +23,7 @@ jobs:
         run: |
           sudo chmod 0755 testing/DEBIAN/postinst
           sudo chmod 0755 testing/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build testing ${{env.pluginName}}-${{env.pluginVersion}}_all.deb
+          sudo dpkg-deb -Zgzip --build testing ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
 
       - name: Remove old packages.
         uses: appleboy/ssh-action@master
@@ -75,7 +75,7 @@ jobs:
         run: |
           sudo chmod 0755 stable/v2.0/DEBIAN/postinst
           sudo chmod 0755 stable/v2.0/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build $stable_version $package_name
+          sudo dpkg-deb -Zgzip --build ${{ env.stable_version}} ${{ env.package_name }}
 
       - name: Remove old packages.
         uses: appleboy/ssh-action@master
