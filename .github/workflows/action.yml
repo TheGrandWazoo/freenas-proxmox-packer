@@ -16,14 +16,16 @@ jobs:
 
       - name: Checkout freenas-proxmox-packer.
         uses: actions/checkout@v2
-        env:
-          pluginVersion: '2.0.0-0-beta6'
+
+      - name: Set our variables
+        run: |
+          echo "::set-env name=pluginVersion::2.0.0-0-beta6"
 
       - name: Package the master branch in a deb file.
         run: |
           sudo chmod 0755 testing/DEBIAN/postinst
           sudo chmod 0755 testing/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build testing ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
+          sudo dpkg-deb -Zgzip --build testing $pluginName-$pluginVersion_all.deb
 
       - name: Remove old packages.
         uses: appleboy/ssh-action@master
@@ -67,15 +69,17 @@ jobs:
 
       - name: Checkout freenas-proxmox-packer.
         uses: actions/checkout@v2
-        env:
-          package_name: 'freenas-proxmox-2.0.0-1_all.deb'
-          stable_version: 'stable/v2.0'
+
+      - name: Set our variables.
+        run: |
+          echo "::set-env name=package_name::freenas-proxmox-2.0.0-1_all.deb"
+          echo "::set-env name=stable_version::stable/v2.0"
 
       - name: Packaging for the 2.0 branch.
         run: |
           sudo chmod 0755 stable/v2.0/DEBIAN/postinst
           sudo chmod 0755 stable/v2.0/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build ${{ jobs.build_stable.steps.env.stable_version}} ${{ jobs.build_stable.steps.env.package_name }}
+          sudo dpkg-deb -Zgzip --build $stable_version $package_name
 
       - name: Remove old packages.
         uses: appleboy/ssh-action@master
@@ -96,7 +100,7 @@ jobs:
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
-          source: ./${{ jobs.build_stable.steps.env.package_name }}
+          source: ./$package_name
           target: ${{ secrets.KSAT_REPO_STABLE_TARGET }}
 
       - name: Refresh repo.
