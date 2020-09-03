@@ -43,10 +43,10 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.KSAT_REPO_HOST }}
+          port: ${{ secrets.KSAT_REPO_PORT }}
           username: ${{ secrets.KSAT_REPO_USERNAME }}
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
             sudo rm -f ${{ env.repoTagetDir }}/*.deb
 
@@ -54,6 +54,7 @@ jobs:
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.KSAT_REPO_HOST }}
+          port: ${{ secrets.KSAT_REPO_PORT }}
           username: ${{ secrets.KSAT_REPO_USERNAME }}
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
@@ -64,10 +65,10 @@ jobs:
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.KSAT_REPO_HOST }}
+          port: ${{ secrets.KSAT_REPO_PORT }}
           username: ${{ secrets.KSAT_REPO_USERNAME }}
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
             sudo ./${{ env.repoRefreshCmd }}
 
