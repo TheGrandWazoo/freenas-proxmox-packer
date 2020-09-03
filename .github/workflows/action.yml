@@ -31,7 +31,7 @@ jobs:
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
-            sudo rm -f ${{ secrets.KSAT_REPO_TESTING_TARGET }}/*
+            sudo rm -f ${{ secrets.KSAT_REPO_TESTING_TARGET }}/*.deb
 
       - name: Upload package to repo.
         uses: appleboy/scp-action@master
@@ -52,7 +52,6 @@ jobs:
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
-            cd ${{ secrets.KSAT_REPO_CMD_DIR }}
             sudo ./reindex_testing_freenas.sh
 
   build_stable:
@@ -73,7 +72,6 @@ jobs:
           sudo dpkg-deb -Zgzip --build stable/v2.0 freenas-proxmox-2.0.0-1_all.deb
 
       - name: Remove old packages.
-        id: list
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.KSAT_REPO_HOST }}
@@ -82,11 +80,7 @@ jobs:
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
-            ls -l
-            sudo rm -f ${{ secrets.KSAT_REPO_STABLE_TARGET }}/*
-
-      - name: Print output
-        run: echo ${{ steps.list.outputs }}
+            sudo rm -f ${{ secrets.KSAT_REPO_STABLE_TARGET }}/*.deb
 
       - name: Upload package to repo.
         uses: appleboy/scp-action@master
@@ -108,5 +102,4 @@ jobs:
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
-            cd ${{ secrets.KSAT_REPO_CMD_DIR }}
             sudo ./reindex_stable_freenas.sh
