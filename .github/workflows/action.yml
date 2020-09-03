@@ -10,17 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     name: Build freenas-proxmox Debian package - master branch.
     steps:
-      - name: Install dpkg.
+      - name: Make sure dpkg is installed.
         run: sudo apt-get install dpkg
 
       - name: Checkout freenas-proxmox-packer.
         uses: actions/checkout@v2
+        env:
+          package_name: freenas-proxmox-2.0.0-0-beta6_all.deb
 
       - name: Package the master branch in a deb file.
         run: |
           sudo chmod 0755 testing/DEBIAN/postinst
           sudo chmod 0755 testing/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build testing freenas-proxmox-2.0.0-0-beta6_all.deb
+          sudo dpkg-deb -Zgzip --build testing ${{ env.package_name }}
 
       - name: Remove old packages.
         uses: appleboy/ssh-action@master
@@ -40,7 +42,7 @@ jobs:
           username: ${{ secrets.KSAT_REPO_USERNAME }}
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          source: ./freenas-proxmox-2.0.0-0-beta6_all.deb
+          source: ./${{ env.package_name }}
           target: ${{ secrets.KSAT_REPO_TESTING_TARGET }}
 
       - name: Refresh repo.
@@ -64,12 +66,15 @@ jobs:
 
       - name: Checkout freenas-proxmox-packer.
         uses: actions/checkout@v2
+        env:
+          package_name: freenas-proxmox-2.0.0-1_all.deb
+          stable_version: stable/v2.0
 
       - name: Packaging for the 2.0 branch.
         run: |
           sudo chmod 0755 stable/v2.0/DEBIAN/postinst
           sudo chmod 0755 stable/v2.0/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build stable/v2.0 freenas-proxmox-2.0.0-1_all.deb
+          sudo dpkg-deb -Zgzip --build ${{ env.stable_version }} ${{ env.package_name }}
 
       - name: Remove old packages.
         uses: appleboy/ssh-action@master
@@ -90,7 +95,7 @@ jobs:
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
-          source: ./freenas-proxmox-2.0.0-1_all.deb
+          source: ./${{ env.package_name }}
           target: ${{ secrets.KSAT_REPO_STABLE_TARGET }}
 
       - name: Refresh repo.
@@ -103,3 +108,4 @@ jobs:
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
             sudo ./reindex_stable_freenas.sh
+            sudo chgrp nginx 
