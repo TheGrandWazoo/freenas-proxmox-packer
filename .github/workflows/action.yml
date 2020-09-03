@@ -100,7 +100,7 @@ jobs:
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
-          source: ${{ package_name }}
+          source: ${{ env.package_name }}
           target: ${{ secrets.KSAT_REPO_STABLE_TARGET }}
 
       - name: Refresh repo.
