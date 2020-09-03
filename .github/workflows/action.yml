@@ -3,7 +3,8 @@ name: freenas-proxmox Package
 on:
   repository_dispatch:
     types: [build_push]
-
+env:
+  pluginName: 'freenas-proxmox'
 jobs:
   build_master:
     if: contains(github.event.client_payload.ref, 'master')
@@ -16,13 +17,13 @@ jobs:
       - name: Checkout freenas-proxmox-packer.
         uses: actions/checkout@v2
         env:
-          package_name: freenas-proxmox-2.0.0-0-beta6_all.deb
+          pluginVersion: '2.0.0-0-beta6'
 
       - name: Package the master branch in a deb file.
         run: |
           sudo chmod 0755 testing/DEBIAN/postinst
           sudo chmod 0755 testing/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build testing ${{ env.package_name }}
+          sudo dpkg-deb -Zgzip --build testing ${{ env.pluginName }}-${{ 2.0.0-0-beta6 }}_all.deb
 
       - name: Remove old packages.
         uses: appleboy/ssh-action@master
@@ -67,8 +68,8 @@ jobs:
       - name: Checkout freenas-proxmox-packer.
         uses: actions/checkout@v2
         env:
-          package_name: freenas-proxmox-2.0.0-1_all.deb
-          stable_version: stable/v2.0
+          package_name: 'freenas-proxmox-2.0.0-1_all.deb'
+          stable_version: 'stable/v2.0'
 
       - name: Packaging for the 2.0 branch.
         run: |
@@ -108,4 +109,3 @@ jobs:
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
             sudo ./reindex_stable_freenas.sh
-            sudo chgrp nginx 
