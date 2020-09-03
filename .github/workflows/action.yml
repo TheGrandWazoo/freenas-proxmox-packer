@@ -73,6 +73,7 @@ jobs:
           sudo dpkg-deb -Zgzip --build stable/v2.0 freenas-proxmox-2.0.0-1_all.deb
 
       - name: Remove old packages.
+        id: list
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.KSAT_REPO_HOST }}
@@ -81,7 +82,12 @@ jobs:
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
+            echo "::set-output name=dirlist::$(ls -l)"
             sudo rm -f ${{ secrets.KSAT_REPO_STABLE_TARGET }}/*
+
+      - name: Print output
+        run:
+          echo ${{ teps.list.output.dirlist }}
 
       - name: Upload package to repo.
         uses: appleboy/scp-action@master
