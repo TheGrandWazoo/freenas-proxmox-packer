@@ -5,6 +5,7 @@ on:
     types: [build_push]
 env:
   pluginName: 'freenas-proxmox'
+
 jobs:
   build_master:
     if: contains(github.event.client_payload.ref, 'master')
@@ -20,12 +21,14 @@ jobs:
       - name: Set our variables
         run: |
           echo "::set-env name=pluginVersion::2.0.0-0-beta6"
+          echo "::set-env name=repoVersion::testing"
+          echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_TESTING_TARGET }}"
 
       - name: Package the master branch in a deb file.
         run: |
           sudo chmod 0755 testing/DEBIAN/postinst
           sudo chmod 0755 testing/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build testing $pluginName-$pluginVersion_all.deb
+          sudo dpkg-deb -Zgzip --build ${{ env.repoVersion }} ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
 
       - name: Remove old packages.
         uses: appleboy/ssh-action@master
@@ -45,7 +48,7 @@ jobs:
           username: ${{ secrets.KSAT_REPO_USERNAME }}
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          source: ./${{ env.package_name }}
+          source: ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
           target: ${{ secrets.KSAT_REPO_TESTING_TARGET }}
 
       - name: Refresh repo.
@@ -72,14 +75,15 @@ jobs:
 
       - name: Set our variables.
         run: |
-          echo "::set-env name=package_name::freenas-proxmox-2.0.0-1_all.deb"
-          echo "::set-env name=stable_version::stable/v2.0"
+          echo "::set-env name=pluginVersion::2.0.0-1_all.deb"
+          echo "::set-env name=repoVersion::stable/v2.0"
+          echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_STABLE_TARGET }}"
 
       - name: Packaging for the 2.0 branch.
         run: |
           sudo chmod 0755 stable/v2.0/DEBIAN/postinst
           sudo chmod 0755 stable/v2.0/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build $stable_version $package_name
+          sudo dpkg-deb -Zgzip --build ${{ env.repoVersion }} ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
 
       - name: Remove old packages.
         uses: appleboy/ssh-action@master
@@ -100,7 +104,7 @@ jobs:
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
-          source: ${{ env.package_name }}
+          source: ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
           target: ${{ secrets.KSAT_REPO_STABLE_TARGET }}
 
       - name: Refresh repo.
