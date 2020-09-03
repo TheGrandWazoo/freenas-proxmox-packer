@@ -86,7 +86,7 @@ jobs:
             sudo rm -f ${{ secrets.KSAT_REPO_STABLE_TARGET }}/*
 
       - name: Print output
-        run: echo ${{ steps.list.out.1 }}
+        run: echo ${{ steps.list.outputs }}
 
       - name: Upload package to repo.
         uses: appleboy/scp-action@master
