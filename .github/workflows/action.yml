@@ -87,7 +87,7 @@ jobs:
 
       - name: Print output
         run:
-          echo ${{ steps.list.output.dirlist }}
+          echo ${{ steps.list.outputs.dirlist }}
 
       - name: Upload package to repo.
         uses: appleboy/scp-action@master
