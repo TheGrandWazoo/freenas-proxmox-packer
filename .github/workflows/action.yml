@@ -7,82 +7,36 @@ env:
   pluginName: 'freenas-proxmox'
 
 jobs:
-  build_master:
-    if: contains(github.event.client_payload.ref, 'master')
+  build_package:
     runs-on: ubuntu-latest
     name: Build freenas-proxmox Debian package - master branch.
     steps:
-      - name: Make sure dpkg is installed.
-        run: sudo apt-get install dpkg
-
-      - name: Checkout freenas-proxmox-packer.
-        uses: actions/checkout@v2
-
-      - name: Set our variables
+      - name: Set our variables for the master branch to the testing repo.
+        if: contains(github.event.client_payload.ref, 'master')
         run: |
           echo "::set-env name=pluginVersion::2.0.0-0-beta6"
           echo "::set-env name=repoVersion::testing"
           echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_TESTING_TARGET }}"
+          echo "::set-env name=repoRefreshCmd::reindex_testing_freenas.sh"
 
-      - name: Package the master branch in a deb file.
+      - name: Set our variables for the 2.0 branch to the stable repo.
+        if: contains(github.event.client_payload.ref, '2.0')
         run: |
-          sudo chmod 0755 testing/DEBIAN/postinst
-          sudo chmod 0755 testing/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build ${{ env.repoVersion }} ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
+          echo "::set-env name=pluginVersion::2.0.0-1"
+          echo "::set-env name=repoVersion::stable/v2.0"
+          echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_STABLE_TARGET }}"
+          echo "::set-env name=repoRefreshCmd::reindex_stable_freenas.sh"
 
-      - name: Remove old packages.
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.KSAT_REPO_HOST }}
-          username: ${{ secrets.KSAT_REPO_USERNAME }}
-          key: ${{ secrets.KSAT_REPO_SECRET }}
-          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          port: ${{ secrets.KSAT_REPO_PORT }}
-          script: |
-            sudo rm -f ${{ secrets.KSAT_REPO_TESTING_TARGET }}/*.deb
-
-      - name: Upload package to repo.
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.KSAT_REPO_HOST }}
-          username: ${{ secrets.KSAT_REPO_USERNAME }}
-          key: ${{ secrets.KSAT_REPO_SECRET }}
-          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          source: ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
-          target: ${{ secrets.KSAT_REPO_TESTING_TARGET }}
-
-      - name: Refresh repo.
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.KSAT_REPO_HOST }}
-          username: ${{ secrets.KSAT_REPO_USERNAME }}
-          key: ${{ secrets.KSAT_REPO_SECRET }}
-          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          port: ${{ secrets.KSAT_REPO_PORT }}
-          script: |
-            sudo ./reindex_testing_freenas.sh
-
-  build_stable:
-    name: Build freenas-proxmox Debian stable package - stable branch
-    if: contains(github.event.client_payload.ref, '2.0')
-    runs-on: ubuntu-latest
-    steps:
       - name: Make sure dpkg is installed.
         run: sudo apt-get install dpkg
 
       - name: Checkout freenas-proxmox-packer.
         uses: actions/checkout@v2
 
-      - name: Set our variables.
+      - name: Change permissions on file and package in a deb file.
         run: |
-          echo "::set-env name=pluginVersion::2.0.0-1_all.deb"
-          echo "::set-env name=repoVersion::stable/v2.0"
-          echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_STABLE_TARGET }}"
-
-      - name: Packaging for the 2.0 branch.
-        run: |
-          sudo chmod 0755 stable/v2.0/DEBIAN/postinst
-          sudo chmod 0755 stable/v2.0/DEBIAN/postrm
+          sudo chmod 0755 ${{ env.repoVersion }}/DEBIAN/postinst
+          sudo chmod 0755 ${{ env.repoVersion }}/DEBIAN/postrm
           sudo dpkg-deb -Zgzip --build ${{ env.repoVersion }} ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
 
       - name: Remove old packages.
@@ -94,7 +48,7 @@ jobs:
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
-            sudo rm -f ${{ secrets.KSAT_REPO_STABLE_TARGET }}/*.deb
+            sudo rm -f ${{ env.repoTagetDir }}/*.deb
 
       - name: Upload package to repo.
         uses: appleboy/scp-action@master
@@ -103,9 +57,8 @@ jobs:
           username: ${{ secrets.KSAT_REPO_USERNAME }}
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          port: ${{ secrets.KSAT_REPO_PORT }}
           source: ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
-          target: ${{ secrets.KSAT_REPO_STABLE_TARGET }}
+          target: ${{ env.repoTagetDir }}
 
       - name: Refresh repo.
         uses: appleboy/ssh-action@master
@@ -116,4 +69,5 @@ jobs:
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
           script: |
-            sudo ./reindex_stable_freenas.sh
+            sudo ./${{ env.repoRefreshCmd }}
+
