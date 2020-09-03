@@ -75,7 +75,7 @@ jobs:
         run: |
           sudo chmod 0755 stable/v2.0/DEBIAN/postinst
           sudo chmod 0755 stable/v2.0/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build ${{ env.stable_version}} ${{ env.package_name }}
+          sudo dpkg-deb -Zgzip --build ${{ jobs.build_stable.steps.env.stable_version}} ${{ jobs.build_stable.steps.env.package_name }}
 
       - name: Remove old packages.
         uses: appleboy/ssh-action@master
@@ -96,7 +96,7 @@ jobs:
           key: ${{ secrets.KSAT_REPO_SECRET }}
           passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
           port: ${{ secrets.KSAT_REPO_PORT }}
-          source: ./${{ env.package_name }}
+          source: ./${{ jobs.build_stable.steps.env.package_name }}
           target: ${{ secrets.KSAT_REPO_STABLE_TARGET }}
 
       - name: Refresh repo.
