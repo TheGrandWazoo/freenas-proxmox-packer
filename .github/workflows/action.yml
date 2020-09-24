@@ -11,6 +11,14 @@ jobs:
     runs-on: ubuntu-latest
     name: Build freenas-proxmox Debian package.
     steps:
+      - name: Set our variables for the feature branch.
+        if: contains(github.event.client_payload.ref, 'feature')
+        run: |
+          echo "::set-env name=pluginVersion::3.0.0-0-alpha1"
+          echo "::set-env name=repoVersion::development"
+          echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_DEVELOPMENT_TARGET }}"
+          echo "::set-env name=repoRefreshCmd::reindex_development_freenas.sh"
+
       - name: Set our variables for the ng branch for the development repo.
         if: contains(github.event.client_payload.ref, 'ng')
         run: |
@@ -22,7 +30,7 @@ jobs:
       - name: Set our variables for the master branch for the testing repo.
         if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "::set-env name=pluginVersion::2.0.1-0-beta1"
+          echo "::set-env name=pluginVersion::2.0.2-0-beta1"
           echo "::set-env name=repoVersion::testing"
           echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_TESTING_TARGET }}"
           echo "::set-env name=repoRefreshCmd::reindex_testing_freenas.sh"
@@ -30,7 +38,7 @@ jobs:
       - name: Set our variables for the 2.0 branch for the stable repo.
         if: contains(github.event.client_payload.ref, '2.0')
         run: |
-          echo "::set-env name=pluginVersion::2.0.1-1"
+          echo "::set-env name=pluginVersion::2.0.2-1"
           echo "::set-env name=repoVersion::stable/v2.0"
           echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_STABLE_TARGET }}"
           echo "::set-env name=repoRefreshCmd::reindex_stable_freenas.sh"
