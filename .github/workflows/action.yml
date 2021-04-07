@@ -14,34 +14,34 @@ jobs:
       - name: Set our variables for the feature branch.
         if: contains(github.event.client_payload.ref, 'feature')
         run: |
-          echo "::set-env name=pluginVersion::3.0.0-0-alpha1"
-          echo "::set-env name=repoVersion::development"
-          echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_DEVELOPMENT_TARGET }}"
-          echo "::set-env name=repoRefreshCmd::reindex_development_freenas.sh"
+          echo "pluginVersion=3.0.0-0-alpha1" >> $GITHUB_ENV
+          echo "repoVersion=development" >> $GITHUB_ENV
+          echo "repoTagetDir=${{ secrets.KSAT_REPO_DEVELOPMENT_TARGET }}" >> $GITHUB_ENV
+          echo "repoRefreshCmd=reindex_development_freenas.sh" >> $GITHUB_ENV
 
       - name: Set our variables for the ng branch for the development repo.
         if: contains(github.event.client_payload.ref, 'ng')
         run: |
-          echo "::set-env name=pluginVersion::3.0.0-0-alpha1"
-          echo "::set-env name=repoVersion::development"
-          echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_DEVELOPMENT_TARGET }}"
-          echo "::set-env name=repoRefreshCmd::reindex_development_freenas.sh"
+          echo "pluginVersion=3.0.0-0-alpha1" >> $GITHUB_ENV
+          echo "repoVersion=development" >> $GITHUB_ENV
+          echo "repoTagetDir=${{ secrets.KSAT_REPO_DEVELOPMENT_TARGET }}" >> $GITHUB_ENV
+          echo "repoRefreshCmd=reindex_development_freenas.sh" >> $GITHUB_ENV
 
       - name: Set our variables for the master branch for the testing repo.
         if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "::set-env name=pluginVersion::2.0.2-3-beta1"
-          echo "::set-env name=repoVersion::testing"
-          echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_TESTING_TARGET }}"
-          echo "::set-env name=repoRefreshCmd::reindex_testing_freenas.sh"
+          echo "pluginVersion=2.0.2-3-beta1" >> $GITHUB_ENV
+          echo "repoVersion=testing" >> $GITHUB_ENV
+          echo "repoTagetDir=${{ secrets.KSAT_REPO_TESTING_TARGET }}" >> $GITHUB_ENV
+          echo "repoRefreshCmd=reindex_testing_freenas.sh" >> $GITHUB_ENV
 
       - name: Set our variables for the 2.0 branch for the stable repo.
         if: contains(github.event.client_payload.ref, '2.0')
         run: |
-          echo "::set-env name=pluginVersion::2.0.2-3"
-          echo "::set-env name=repoVersion::stable/v2.0"
-          echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_STABLE_TARGET }}"
-          echo "::set-env name=repoRefreshCmd::reindex_stable_freenas.sh"
+          echo "pluginVersion=2.0.2-3" >> $GITHUB_ENV
+          echo "repoVersion=stable/v2.0" >> $GITHUB_ENV
+          echo "repoTagetDir=${{ secrets.KSAT_REPO_STABLE_TARGET }}" >> $GITHUB_ENV
+          echo "repoRefreshCmd=reindex_stable_freenas.sh" >> $GITHUB_ENV
 
       - name: Make sure dpkg is installed.
         run: sudo apt-get install dpkg
