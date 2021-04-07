@@ -21,7 +21,7 @@ RESTART_PVE_SERVICES="no"
 # done its automatic conffile handling, and all the packages we depend
 # of are already fully installed and configured.
 
-[ "$_DEBUG" == "on" ] && PATCH_ARGS="--verbose -b" || PATCH_ARGS="-s -b"
+[ "$_DEBUG" == "on" ] && PATCH_ARGS="--verbose -b --ignore-whitespace" || PATCH_ARGS="-s -b --ignore-whitespace"
 
 proxmox_ve_ver=`dpkg-query --showformat='${Version}' --show proxmox-ve`
 libpve_storage_perl_ver=`dpkg-query --showformat='${Version}' --show libpve-storage-perl`
