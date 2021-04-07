@@ -30,7 +30,7 @@ jobs:
       - name: Set our variables for the master branch for the testing repo.
         if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "::set-env name=pluginVersion::2.0.2-0-beta1"
+          echo "::set-env name=pluginVersion::2.0.2-3-beta1"
           echo "::set-env name=repoVersion::testing"
           echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_TESTING_TARGET }}"
           echo "::set-env name=repoRefreshCmd::reindex_testing_freenas.sh"
@@ -38,7 +38,7 @@ jobs:
       - name: Set our variables for the 2.0 branch for the stable repo.
         if: contains(github.event.client_payload.ref, '2.0')
         run: |
-          echo "::set-env name=pluginVersion::2.0.2-1"
+          echo "::set-env name=pluginVersion::2.0.2-3"
           echo "::set-env name=repoVersion::stable/v2.0"
           echo "::set-env name=repoTagetDir::${{ secrets.KSAT_REPO_STABLE_TARGET }}"
           echo "::set-env name=repoRefreshCmd::reindex_stable_freenas.sh"
