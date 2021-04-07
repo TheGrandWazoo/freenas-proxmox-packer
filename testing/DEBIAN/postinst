@@ -22,7 +22,7 @@ RESTART_PVE_SERVICES="no"
 # package.  All the package's files are in place, dpkg has already
 # done its automatic conffile handling, and all the packages we depend
 # of are already fully installed and configured.
-[ "${_DEBUG}" == "on" ] && PATCH_ARGS="--verbose -b" || PATCH_ARGS="-s -b"
+[ "${_DEBUG}" == "on" ] && PATCH_ARGS="--verbose -b --ignore-whitespace" || PATCH_ARGS="-s -b --ignore-whitespace"
 
 # Get some version numbers of the Proxmox packages
 proxmox_ve_ver=`dpkg-query --showformat='${Version}' --show proxmox-ve`
