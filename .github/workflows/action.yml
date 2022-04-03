@@ -30,7 +30,7 @@ jobs:
       - name: Set our variables for the master branch for the testing repo.
         if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "pluginVersion=2.1.1-0-beta1" >> $GITHUB_ENV
+          echo "pluginVersion=2.1.1-0-beta4" >> $GITHUB_ENV
           echo "repoVersion=testing" >> $GITHUB_ENV
           echo "repoTagetDir=${{ secrets.KSAT_REPO_TESTING_TARGET }}" >> $GITHUB_ENV
           echo "repoRefreshCmd=reindex_testing_freenas.sh" >> $GITHUB_ENV
