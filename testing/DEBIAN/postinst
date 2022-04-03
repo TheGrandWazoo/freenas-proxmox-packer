@@ -36,10 +36,10 @@ major_ver=${proxmox_ve_ver%%.*}
 # Test if the freenas-proxmox repo has been downloaded. If not clone it, else
 # update the repo with a pull.
 if test -e ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}; then
-  [ "${_DEBUG}" == "on" ] && echo "Removing proxmox-freenas clone."
+  [ "${_DEBUG}" == "on" ] && echo "Removing proxmox-freenas local clone."
   rm -rf ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}
 fi
-"${_DEBUG}" == "on" ] && echo "Cloning proxmox-freenas github repo"
+[ "${_DEBUG}" == "on" ] && echo "Cloning proxmox-freenas github repo"
 git -C ${GIT_LOCAL_REPO_PATH} clone ${GIT_REPO}${GIT_REPO_NAME}.git
 
 # What is the 'postinst' script doing...
