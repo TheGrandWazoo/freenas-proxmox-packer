@@ -40,7 +40,8 @@ if test ! -e ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}; then
   git -C ${GIT_LOCAL_REPO_PATH} clone ${GIT_REPO}${GIT_REPO_NAME}.git
 else
   [ "${_DEBUG}" == "on" ] && echo "Pulling proxmox-freenas github repo"
-  git -C ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME} pull
+  git -C ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME} config pull.rebase false
+  git -C ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME} pull origin ${GIT_BRANCH}
 fi
 
 # What is the 'postinst' script doing...
