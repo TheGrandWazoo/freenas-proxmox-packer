@@ -41,7 +41,7 @@ if test ! -e ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME}; then
 else
   [ "${_DEBUG}" == "on" ] && echo "Pulling proxmox-freenas github repo"
   git -C ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME} config pull.rebase false
-  git -C ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME} pull origin ${GIT_BRANCH}
+  git -C ${GIT_LOCAL_REPO_PATH}${GIT_REPO_NAME} pull
 fi
 
 # What is the 'postinst' script doing...
