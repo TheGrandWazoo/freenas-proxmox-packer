@@ -10,8 +10,8 @@ Vcs-Browser: https://github.com/TheGrandWazoo/freenas-proxmox.git
 Homepage: https://github.com/TheGrandWazoo/freenas-proxmox/wiki
 Package: freenas-proxmox
 Architecture: all
-Version: 2.2.0-0-beta1
+Version: 2.2.0-0-beta6
 Pre-Depends: librest-client-perl, git
 Provides: freenas-proxmox
-Description: FreeNAS Plugin for Proxmox VE
- A Proxmox VE storage plugin to interface with FreeNAS APIs.
+Description: TrueNAS Plugin for Proxmox VE
+ A Proxmox VE storage plugin to interface with TrueNAS APIs.

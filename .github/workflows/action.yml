@@ -5,6 +5,7 @@ on:
     types: [build_push]
 env:
   pluginName: 'freenas-proxmox'
+  debDistro: 'bullseye'
 
 jobs:
   build_package:
@@ -17,31 +18,27 @@ jobs:
           echo "pluginVersion=3.0.0-0-alpha1" >> $GITHUB_ENV
           echo "repoVersion=development" >> $GITHUB_ENV
           echo "repoTagetDir=${{ secrets.KSAT_REPO_DEVELOPMENT_TARGET }}" >> $GITHUB_ENV
-          echo "repoRefreshCmd=reindex_development_freenas.sh" >> $GITHUB_ENV
 
       - name: Set our variables for the ng branch for the development repo.
         if: contains(github.event.client_payload.ref, 'ng')
         run: |
           echo "pluginVersion=3.0.0-0-alpha1" >> $GITHUB_ENV
           echo "repoVersion=development" >> $GITHUB_ENV
-          echo "repoTagetDir=${{ secrets.KSAT_REPO_DEVELOPMENT_TARGET }}" >> $GITHUB_ENV
-          echo "repoRefreshCmd=reindex_development_freenas.sh" >> $GITHUB_ENV
+          echo "debComponent=development" >> $GITHUB_ENV
 
       - name: Set our variables for the master branch for the testing repo.
         if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "pluginVersion=2.2.0-0-beta1" >> $GITHUB_ENV
+          echo "pluginVersion=2.2.0-0-beta6" >> $GITHUB_ENV
           echo "repoVersion=testing" >> $GITHUB_ENV
-          echo "repoTagetDir=${{ secrets.KSAT_REPO_TESTING_TARGET }}" >> $GITHUB_ENV
-          echo "repoRefreshCmd=reindex_testing_freenas.sh" >> $GITHUB_ENV
+          echo "debComponent=testing" >> $GITHUB_ENV
 
       - name: Set our variables for the 2.0 branch for the stable repo.
         if: contains(github.event.client_payload.ref, '2.0')
         run: |
           echo "pluginVersion=2.1.0-1" >> $GITHUB_ENV
           echo "repoVersion=stable/v2.0" >> $GITHUB_ENV
-          echo "repoTagetDir=${{ secrets.KSAT_REPO_STABLE_TARGET }}" >> $GITHUB_ENV
-          echo "repoRefreshCmd=reindex_stable_freenas.sh" >> $GITHUB_ENV
+          echo "debComponent=main" >> $GITHUB_ENV
 
       - name: Make sure dpkg is installed.
         run: sudo apt-get install dpkg
@@ -55,36 +52,43 @@ jobs:
           sudo chmod 0755 ${{ env.repoVersion }}/DEBIAN/postrm
           sudo dpkg-deb -Zgzip --build ${{ env.repoVersion }} ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
 
-      - name: Remove old packages from repo.
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.KSAT_REPO_HOST }}
-          port: ${{ secrets.KSAT_REPO_PORT }}
-          username: ${{ secrets.KSAT_REPO_USERNAME }}
-          key: ${{ secrets.KSAT_REPO_SECRET }}
-          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          script: |
-            sudo rm -f ${{ env.repoTagetDir }}/*.deb
 
-      - name: Upload package to repo.
-        uses: appleboy/scp-action@master
-        with:
-          host: ${{ secrets.KSAT_REPO_HOST }}
-          port: ${{ secrets.KSAT_REPO_PORT }}
-          username: ${{ secrets.KSAT_REPO_USERNAME }}
-          key: ${{ secrets.KSAT_REPO_SECRET }}
-          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          source: ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
-          target: ${{ env.repoTagetDir }}
+       - name: Upload Debian package to JFrog
+         uses: wei/curl@v1
+         with:
+           args: -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "https://ksatechnologies.jfrog.io/artifactory/truenas-proxmox/pool/${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=<DISTRIBUTION>;deb.component=;deb.architecture=amd64" -T .
 
-      - name: Refresh repo.
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.KSAT_REPO_HOST }}
-          port: ${{ secrets.KSAT_REPO_PORT }}
-          username: ${{ secrets.KSAT_REPO_USERNAME }}
-          key: ${{ secrets.KSAT_REPO_SECRET }}
-          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-          script: |
-            sudo ./${{ env.repoRefreshCmd }}
+
+#      - name: Remove old packages from repo.
+#        uses: appleboy/ssh-action@master
+#        with:
+#         host: ${{ secrets.KSAT_REPO_HOST }}
+#         port: ${{ secrets.KSAT_REPO_PORT }}
+#          username: ${{ secrets.KSAT_REPO_USERNAME }}
+#          key: ${{ secrets.KSAT_REPO_SECRET }}
+#          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
+#          script: |
+#            sudo rm -f ${{ env.repoTagetDir }}/*.deb
+
+#      - name: Upload package to repo.
+#        uses: appleboy/scp-action@master
+#        with:
+#          host: ${{ secrets.KSAT_REPO_HOST }}
+#          port: ${{ secrets.KSAT_REPO_PORT }}
+#          username: ${{ secrets.KSAT_REPO_USERNAME }}
+#          key: ${{ secrets.KSAT_REPO_SECRET }}
+#          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
+#          source: ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
+#          target: ${{ env.repoTagetDir }}
+
+#      - name: Refresh repo.
+#        uses: appleboy/ssh-action@master
+#        with:
+#          host: ${{ secrets.KSAT_REPO_HOST }}
+#          port: ${{ secrets.KSAT_REPO_PORT }}
+#          username: ${{ secrets.KSAT_REPO_USERNAME }}
+#          key: ${{ secrets.KSAT_REPO_SECRET }}
+#          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
+#          script: |
+#            sudo ./${{ env.repoRefreshCmd }}
 
