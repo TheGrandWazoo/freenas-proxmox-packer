@@ -55,7 +55,7 @@ jobs:
       - name: Upload Debian package to JFrog
         run: |
           sudo ls -l
-          sudo curl -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "${{ secrets.JFROG_REPO_URL }}${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=${{ env.debDistro }};deb.component=${{ env.debComponent }};deb.architecture=amd64" -T .
+          sudo curl -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "${{ secrets.JFROG_REPO_URL }}${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=${{ env.debDistro }};deb.component=${{ env.debComponent }};deb.architecture=all" -T ${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb
 
 
 #      - name: Remove old packages from repo.
