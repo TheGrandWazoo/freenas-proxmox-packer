@@ -29,7 +29,7 @@ jobs:
       - name: Set our variables for the master branch for the testing repo.
 #        if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "pluginVersion=2.2.0-0-beta7" >> $GITHUB_ENV
+          echo "pluginVersion=2.2.0-beta.7" >> $GITHUB_ENV
           echo "repoVersion=testing" >> $GITHUB_ENV
           echo "debComponent=testing" >> $GITHUB_ENV
 
