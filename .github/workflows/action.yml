@@ -8,9 +8,8 @@ env:
   debDistro: 'bullseye'
 
 jobs:
-  build_package:
+  Build_freenas-proxmox_Debian_package:
     runs-on: ubuntu-latest
-    name: Build freenas-proxmox Debian package.
     steps:
       - name: Set our variables for the feature branch.
         if: contains(github.event.client_payload.ref, 'feature')
@@ -52,11 +51,10 @@ jobs:
           sudo chmod 0755 ${{ env.repoVersion }}/DEBIAN/postrm
           sudo dpkg-deb -Zgzip --build ${{ env.repoVersion }} ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
 
-
-       - name: Upload Debian package to JFrog
-         uses: wei/curl@v1
-         with:
-           args: -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "https://ksatechnologies.jfrog.io/artifactory/truenas-proxmox/pool/${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=<DISTRIBUTION>;deb.component=;deb.architecture=amd64" -T .
+      - name: Upload Debian package to JFrog
+        uses: wei/curl@v1
+        with:
+          args: -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "https://ksatechnologies.jfrog.io/artifactory/truenas-proxmox/pool/${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=<DISTRIBUTION>;deb.component=;deb.architecture=amd64" -T .
 
 
 #      - name: Remove old packages from repo.
