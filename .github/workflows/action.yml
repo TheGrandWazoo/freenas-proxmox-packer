@@ -53,9 +53,8 @@ jobs:
           sudo dpkg-deb -Zgzip --build ${{ env.repoVersion }} ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
 
       - name: Upload Debian package to JFrog
-        uses: wei/curl@v1
-        with:
-          args: -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "${{ secrets.JFROG_REPO_URL }}${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=${{ env.debDistro }};deb.component=${{ env.debComponent }};deb.architecture=amd64" -T .
+        run: |
+          curl -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "${{ secrets.JFROG_REPO_URL }}${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=${{ env.debDistro }};deb.component=${{ env.debComponent }};deb.architecture=amd64" -T .
 
 
 #      - name: Remove old packages from repo.
