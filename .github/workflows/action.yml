@@ -48,13 +48,14 @@ jobs:
 
       - name: Change permissions on file and package in a deb file.
         run: |
-          sudo chmod 0755 ${{ env.repoVersion }}/DEBIAN/postinst
-          sudo chmod 0755 ${{ env.repoVersion }}/DEBIAN/postrm
+          sudo chmod 0755 ${{ env.gitBranch }}/DEBIAN/postinst
+          sudo chmod 0755 ${{ env.gitBranch }}/DEBIAN/postrm
           sudo dpkg-deb --build ${{ env.gitBranch }} ${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb
 
       - name: Upload Debian package to JFrog
         run: |
-          curl -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "${{ secrets.JFROG_REPO_URL }}${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=${{ env.debDistro }};deb.component=${{ env.debComponent }};deb.architecture=amd64" -T .
+          sudo ls -l
+          sudo curl -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "${{ secrets.JFROG_REPO_URL }}${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=${{ env.debDistro }};deb.component=${{ env.debComponent }};deb.architecture=amd64" -T .
 
 
 #      - name: Remove old packages from repo.
