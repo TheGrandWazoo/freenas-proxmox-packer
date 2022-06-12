@@ -1,8 +1,9 @@
 # action.yml
 name: freenas-proxmox Package
 on:
+  push:
   repository_dispatch:
-    types: [build_push, push]
+    types: [build_push]
 env:
   pluginName: 'freenas-proxmox'
   debDistro: 'bullseye'
