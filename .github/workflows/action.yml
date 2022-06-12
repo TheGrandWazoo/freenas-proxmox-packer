@@ -55,7 +55,7 @@ jobs:
       - name: Upload Debian package to JFrog
         uses: wei/curl@v1
         with:
-          args: -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "https://ksatechnologies.jfrog.io/artifactory/truenas-proxmox/pool/${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=<DISTRIBUTION>;deb.component=;deb.architecture=amd64" -T .
+          args: -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "${{ secrets.JFROG_REPO_URL }}${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=${{ env.debDistro }};deb.component=${{ env.debComponent }};deb.architecture=amd64" -T .
 
 
 #      - name: Remove old packages from repo.
