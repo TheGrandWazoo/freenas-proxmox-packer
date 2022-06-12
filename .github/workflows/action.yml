@@ -23,21 +23,21 @@ jobs:
         if: contains(github.event.client_payload.ref, 'ng')
         run: |
           echo "pluginVersion=3.0.0-0-alpha1" >> $GITHUB_ENV
-          echo "repoVersion=development" >> $GITHUB_ENV
+          echo "gitBranch=development" >> $GITHUB_ENV
           echo "debComponent=development" >> $GITHUB_ENV
 
       - name: Set our variables for the master branch for the testing repo.
 #        if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "pluginVersion=2.2.0-beta.7" >> $GITHUB_ENV
-          echo "repoVersion=testing" >> $GITHUB_ENV
+          echo "pluginVersion=2.2.0-0-beta7" >> $GITHUB_ENV
+          echo "gitBranch=testing" >> $GITHUB_ENV
           echo "debComponent=testing" >> $GITHUB_ENV
 
       - name: Set our variables for the 2.0 branch for the stable repo.
         if: contains(github.event.client_payload.ref, '2.0')
         run: |
           echo "pluginVersion=2.1.0-1" >> $GITHUB_ENV
-          echo "repoVersion=stable/v2.0" >> $GITHUB_ENV
+          echo "gitBranch=stable/v2.0" >> $GITHUB_ENV
           echo "debComponent=main" >> $GITHUB_ENV
 
       - name: Make sure dpkg is installed.
@@ -50,7 +50,7 @@ jobs:
         run: |
           sudo chmod 0755 ${{ env.repoVersion }}/DEBIAN/postinst
           sudo chmod 0755 ${{ env.repoVersion }}/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build ${{ env.repoVersion }} ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
+          sudo dpkg-deb --build ${{ env.gitBranch }} ${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb
 
       - name: Upload Debian package to JFrog
         run: |
