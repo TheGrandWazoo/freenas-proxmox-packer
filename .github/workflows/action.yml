@@ -29,7 +29,7 @@ jobs:
       - name: Set our variables for the master branch for the testing repo.
 #        if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "pluginVersion=2.2.0-0-beta9" >> $GITHUB_ENV
+          echo "pluginVersion=2.2.0-0-beta10" >> $GITHUB_ENV
           echo "gitBranch=testing" >> $GITHUB_ENV
           echo "debComponent=testing" >> $GITHUB_ENV
 
@@ -50,7 +50,7 @@ jobs:
         run: |
           sudo chmod 0755 ${{ env.gitBranch }}/DEBIAN/postinst
           sudo chmod 0755 ${{ env.gitBranch }}/DEBIAN/postrm
-          sudo dpkg-deb -z9 --build ${{ env.gitBranch }} ${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb
+          sudo dpkg-deb -Zgzip --build ${{ env.gitBranch }} ${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb
 
       - name: Upload Debian package to JFrog
         run: |
