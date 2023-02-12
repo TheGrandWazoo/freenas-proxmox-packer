@@ -136,6 +136,8 @@ case "$1" in
       pveproxy restart
       echo "Restarting pvestatd..."
       pvestatd restart
+      echo "Restarting pvescheduler..."
+      systemctl restart pvescheduler.service
     fi
     exit 0
     ;;

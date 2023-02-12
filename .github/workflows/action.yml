@@ -29,14 +29,14 @@ jobs:
       - name: Set our variables for the master branch for the testing repo.
 #        if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "pluginVersion=2.2.0-0-beta7" >> $GITHUB_ENV
+          echo "pluginVersion=2.2.0-0-beta8" >> $GITHUB_ENV
           echo "gitBranch=testing" >> $GITHUB_ENV
           echo "debComponent=testing" >> $GITHUB_ENV
 
       - name: Set our variables for the 2.0 branch for the stable repo.
         if: contains(github.event.client_payload.ref, '2.0')
         run: |
-          echo "pluginVersion=2.1.0-1" >> $GITHUB_ENV
+          echo "pluginVersion=2.2.0-1" >> $GITHUB_ENV
           echo "gitBranch=stable/v2.0" >> $GITHUB_ENV
           echo "debComponent=main" >> $GITHUB_ENV
 
@@ -56,38 +56,3 @@ jobs:
         run: |
           sudo ls -l
           sudo curl -u${{ secrets.JFROG_REPO_USERNAME }}:${{ secrets.JFROG_REPO_PASSWORD }} -X PUT "${{ secrets.JFROG_REPO_URL }}${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb;deb.distribution=${{ env.debDistro }};deb.component=${{ env.debComponent }};deb.architecture=all" -T ${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb
-
-
-#      - name: Remove old packages from repo.
-#        uses: appleboy/ssh-action@master
-#        with:
-#         host: ${{ secrets.KSAT_REPO_HOST }}
-#         port: ${{ secrets.KSAT_REPO_PORT }}
-#          username: ${{ secrets.KSAT_REPO_USERNAME }}
-#          key: ${{ secrets.KSAT_REPO_SECRET }}
-#          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-#          script: |
-#            sudo rm -f ${{ env.repoTagetDir }}/*.deb
-
-#      - name: Upload package to repo.
-#        uses: appleboy/scp-action@master
-#        with:
-#          host: ${{ secrets.KSAT_REPO_HOST }}
-#          port: ${{ secrets.KSAT_REPO_PORT }}
-#          username: ${{ secrets.KSAT_REPO_USERNAME }}
-#          key: ${{ secrets.KSAT_REPO_SECRET }}
-#          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-#          source: ${{ env.pluginName }}-${{ env.pluginVersion }}_all.deb
-#          target: ${{ env.repoTagetDir }}
-
-#      - name: Refresh repo.
-#        uses: appleboy/ssh-action@master
-#        with:
-#          host: ${{ secrets.KSAT_REPO_HOST }}
-#          port: ${{ secrets.KSAT_REPO_PORT }}
-#          username: ${{ secrets.KSAT_REPO_USERNAME }}
-#          key: ${{ secrets.KSAT_REPO_SECRET }}
-#          passphrase: ${{ secrets.KSAT_REPO_PASSPHRASE }}
-#          script: |
-#            sudo ./${{ env.repoRefreshCmd }}
-
