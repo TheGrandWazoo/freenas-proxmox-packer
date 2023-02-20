@@ -13,10 +13,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set our variables for the feature branch.
-        if: contains(github.event.client_payload.ref, 'feature')
+        if: contains(github.event.client_payload.ref, 'feature_')
         run: |
-          echo "pluginVersion=3.0.0-0-alpha1" >> $GITHUB_ENV
-          echo "repoVersion=development" >> $GITHUB_ENV
+          echo "pluginVersion=2.3.0-0-alpha-1" >> $GITHUB_ENV
+          echo "repoVersion=snapshots" >> $GITHUB_ENV
           echo "repoTagetDir=${{ secrets.KSAT_REPO_DEVELOPMENT_TARGET }}" >> $GITHUB_ENV
 
       - name: Set our variables for the ng branch for the development repo.
@@ -27,7 +27,7 @@ jobs:
           echo "debComponent=development" >> $GITHUB_ENV
 
       - name: Set our variables for the master branch for the testing repo.
-#        if: contains(github.event.client_payload.ref, 'master')
+        if: contains(github.event.client_payload.ref, 'master')
         run: |
           echo "pluginVersion=2.2.0-0-beta10" >> $GITHUB_ENV
           echo "gitBranch=testing" >> $GITHUB_ENV
