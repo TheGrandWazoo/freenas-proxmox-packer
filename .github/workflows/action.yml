@@ -63,7 +63,7 @@ jobs:
           api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
           command: "push"
           format: "deb"
-          owner: "thegrandwazoo"
+          owner: "ksatechnologies"
           repo: ${{ env.ARTIFACT_REPO_NAME }}
           distro: "debian"
           release: "any-version"
