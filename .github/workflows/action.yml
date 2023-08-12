@@ -60,7 +60,7 @@ jobs:
         id: push
         uses: cloudsmith-io/action@master
         with:
-          api-key: ${{ secrets.CLOUDSMIT_API_KEY }}
+          api-key: ${{ secrets.CLOUDSMITH_API_KEY }}
           command: "push"
           format: "deb"
           owner: "thegrandwazoo"
