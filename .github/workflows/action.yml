@@ -58,7 +58,7 @@ jobs:
 
       - name: Push Debian package to Cloudsmith
         id: push
-        uses: cloudsmit-io/action@master
+        uses: cloudsmith-io/action@master
         with:
           api-key: ${{ secrets.CLOUDSMIT_API_KEY }}
           command: "push"
