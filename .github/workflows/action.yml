@@ -63,7 +63,7 @@ jobs:
           api-key: ${{ secrets.CLOUDSMIT_API_KEY }}
           command: "push"
           format: "deb"
-          owner: "cloudsmith"
+          owner: "thegrandwazoo"
           repo: ${{ env.ARTIFACT_REPO_NAME }}
           distro: "debian"
           release: "any-version"
