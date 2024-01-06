@@ -1,13 +1,11 @@
 # action.yml
-name: freenas-proxmox Package
+name: TrueNAS Plugin for Proxmox VE Packager.
 on:
-  push:
   repository_dispatch:
     types: [build_push]
 env:
-  pluginName: 'freenas-proxmox'
-  debDistro: 'bullseye'
-
+  DEB_PACKAGE_NAME: 'freenas-proxmox'
+  DEB_DISTRO_VERSION: 'all-version'
 jobs:
   Build_freenas-proxmox_Debian_package:
     runs-on: ubuntu-latest
@@ -15,48 +13,42 @@ jobs:
       - name: Set our variables for the feature branch.
         if: contains(github.event.client_payload.ref, 'feature_')
         run: |
-          echo "pluginVersion=2.3.0-0-alpha-1" >> $GITHUB_ENV
-          echo "repoVersion=snapshots" >> $GITHUB_ENV
-          echo "repoTagetDir=${{ secrets.KSAT_REPO_DEVELOPMENT_TARGET }}" >> $GITHUB_ENV
-          echo "ARTIFACT_REPO_NAME=truenas-proxmox-testing" >> $GITHUB_ENV
-
+          echo "DEB_PACKAGE_VERSION=2.3.0-0-alpha-1" >> $GITHUB_ENV
+          echo "DEB_REPO_COMPONENT=development" >> $GITHUB_ENV
+          echo "ARTIFACT_REPO_NAME=truenas-proxmox-snapshots" >> $GITHUB_ENV
       - name: Set our variables for the ng branch for the development repo.
         if: contains(github.event.client_payload.ref, 'ng')
         run: |
-          echo "pluginVersion=3.0.0-0-alpha1" >> $GITHUB_ENV
-          echo "gitBranch=development" >> $GITHUB_ENV
-          echo "debComponent=development" >> $GITHUB_ENV
+          echo "DEB_PACKAGE_VERSION=3.0.0-0-alpha1" >> $GITHUB_ENV
+          echo "GIBHUB_BRANCH=development" >> $GITHUB_ENV
+          echo "DEB_REPO_COMPONENT=development" >> $GITHUB_ENV
           echo "ARTIFACT_REPO_NAME=truenas-proxmox-snapshots" >> $GITHUB_ENV
-
       - name: Set our variables for the master branch for the testing repo.
         if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "pluginVersion=2.2.0-0-beta10" >> $GITHUB_ENV
+          echo "DEB_PACKAGE_VERSION=2.3.0-0-beta1" >> $GITHUB_ENV
           echo "gitBranch=testing" >> $GITHUB_ENV
-          echo "debComponent=testing" >> $GITHUB_ENV
+          echo "DEB_REPO_COMPONENT=testing" >> $GITHUB_ENV
           echo "ARTIFACT_REPO_NAME=truenas-proxmox-testing" >> $GITHUB_ENV
-
       - name: Set our variables for the 2.0 branch for the stable repo.
         if: contains(github.event.client_payload.ref, '2.0')
         run: |
-          echo "pluginVersion=2.2.0-1" >> $GITHUB_ENV
+          echo "DEB_PACKAGE_VERSION=2.2.0-1" >> $GITHUB_ENV
           echo "gitBranch=stable/v2.0" >> $GITHUB_ENV
-          echo "debComponent=main" >> $GITHUB_ENV
+          echo "DEB_REPO_COMPONENT=main" >> $GITHUB_ENV
           echo "ARTIFACT_REPO_NAME=truenas-proxmox" >> $GITHUB_ENV
-
       - name: Make sure dpkg is installed.
         run: sudo apt-get install dpkg
-
       - name: Checkout freenas-proxmox-packer.
         uses: actions/checkout@v2
-
-      - name: Change permissions on file and package in a deb file.
+      - name: Change permissions on the `post` files.
         run: |
           sudo chmod 0755 ${{ env.gitBranch }}/DEBIAN/postinst
           sudo chmod 0755 ${{ env.gitBranch }}/DEBIAN/postrm
-          sudo dpkg-deb -Zgzip --build ${{ env.gitBranch }} ${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb
-
-      - name: Push Debian package to Cloudsmith
+      - name: Create the truenas-proxmox Debian Pacakge.
+        run: |
+          sudo dpkg-deb -Zgzip --build ${{ env.gitBranch }} ${{ env.DEB_PACKAGE_NAME }}_${{ env.DEB_PACKAGE_VERSION }}_all.deb
+      - name: Push truenas-proxmox package to Cloudsmith
         id: push
         uses: cloudsmith-io/action@master
         with:
@@ -66,5 +58,5 @@ jobs:
           owner: "ksatechnologies"
           repo: ${{ env.ARTIFACT_REPO_NAME }}
           distro: "debian"
-          release: "any-version"
-          file: ${{ env.pluginName }}_${{ env.pluginVersion }}_all.deb
+          release: ${{ DEB_DISTRO_VERSION }}
+          file: ${{ env.DEB_PACKAGE_NAME }}_${{ env.DEB_PACKAGE_VERSION }}_all.deb
