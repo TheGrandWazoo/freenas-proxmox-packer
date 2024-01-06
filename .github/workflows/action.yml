@@ -58,5 +58,5 @@ jobs:
           owner: "ksatechnologies"
           repo: ${{ env.ARTIFACT_REPO_NAME }}
           distro: "debian"
-          release: ${{ DEB_DISTRO_VERSION }}
+          release: ${{ env.DEB_PACKAGE_VERSION }}
           file: ${{ env.DEB_PACKAGE_NAME }}_${{ env.DEB_PACKAGE_VERSION }}_all.deb
