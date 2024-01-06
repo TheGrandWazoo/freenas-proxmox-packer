@@ -27,7 +27,7 @@ jobs:
       - name: Set our variables for the master branch for the testing repo.
         if: contains(github.event.client_payload.ref, 'master')
         run: |
-          echo "DEB_PACKAGE_VERSION=2.3.0-0-beta1" >> $GITHUB_ENV
+          echo "DEB_PACKAGE_VERSION=2.3.0-0-beta2" >> $GITHUB_ENV
           echo "gitBranch=testing" >> $GITHUB_ENV
           echo "DEB_REPO_COMPONENT=testing" >> $GITHUB_ENV
           echo "ARTIFACT_REPO_NAME=truenas-proxmox-testing" >> $GITHUB_ENV
