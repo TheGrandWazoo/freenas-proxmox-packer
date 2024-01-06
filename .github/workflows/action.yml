@@ -5,7 +5,7 @@ on:
     types: [build_push]
 env:
   DEB_PACKAGE_NAME: 'freenas-proxmox'
-  DEB_DISTRO_VERSION: 'all-version'
+  DEB_DISTRO_VERSION: 'any-version'
 jobs:
   Build_freenas-proxmox_Debian_package:
     runs-on: ubuntu-latest
@@ -14,6 +14,7 @@ jobs:
         if: contains(github.event.client_payload.ref, 'feature_')
         run: |
           echo "DEB_PACKAGE_VERSION=2.3.0-0-alpha-1" >> $GITHUB_ENV
+          echo "gitBranch=development" >> $GITHUB_ENV
           echo "DEB_REPO_COMPONENT=development" >> $GITHUB_ENV
           echo "ARTIFACT_REPO_NAME=truenas-proxmox-snapshots" >> $GITHUB_ENV
       - name: Set our variables for the ng branch for the development repo.
